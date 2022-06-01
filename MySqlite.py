@@ -100,14 +100,14 @@ class MySqlite:
 			namesCount = len(data)
 			if namesCount == 0:
 				return False
-			helpWord = 'празднует' if namesCount == 1 else 'празднуют'
+			supportingWord = 'празднует' if namesCount == 1 else 'празднуют'
 			if namesCount == 2:
 				sep = ' и '
 			else:
 				sep = ', '
 			names = sep.join([i[1] + ' ' + i[2] for i in data])
 
-			return f'Сегодня {names} {helpWord} День рождения!🎂🥳'
+			return f'Сегодня {names} {supportingWord} День рождения!🎂🥳'
 		except Exception as ex:
 			print(ex)
 			return False
