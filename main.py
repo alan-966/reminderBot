@@ -97,42 +97,41 @@ def catch_new_chat():
 	bot.polling(none_stop=True)
 
 
-def check_birthday(**kwargs):
+def check_birthday_config(client, **kwargs):
 	db = MySqlite(kwargs['db_name'])
-	data = db.getBirthdayUsers(kwargs['table_name']) if 'table_name' in kwargs else db.getBirthdayUsers()
-	return data
+	message = db.getBirthdayUsers(kwargs['table_name']) if 'table_name' in kwargs else db.getBirthdayUsers()
+	if message:
+		send_message(client, message)
+	return schedule.CancelJob
+
+
+def check_weather_config(client, **kwargs):
+	message = ''
+	if kwargs['service'] == 'gismeteo':
+		message = get_weather_gismeteo(**kwargs)
+	elif kwargs['service'] == 'yandex':
+		message = get_weather_yandex(**kwargs)
+	send_message(client, message)
+	return schedule.CancelJob
 
 
 def check_config():
 	for client in clients_list:
 		for action in clients_list[client]:
 			params = clients_list[client][action]
+			t = params['time'] if 'time' in params else '00:00'
 			if action == 'weather':
-				message = ''
-				if params['service'] == 'gismeteo':
-					message = get_weather_gismeteo(**params)
-				elif params['service'] == 'yandex':
-					message = get_weather_yandex(**params)
-				# print(client, message)
-				send_message(client, message)
+				schedule.every().day.at(t).do(check_weather_config, client, **params)
 			elif action == 'birthday':
-				message = check_birthday(**params)
-				if message:
-					send_message(client, message)
-
-
-def asd():
-	print('123')
-	return schedule.CancelJob
+				schedule.every().day.at(t).do(check_birthday_config, client, **params)
 
 
 def main():
 	# catch_new_chat()
-	# schedule.every(5).seconds.do(asd)
+	schedule.every().day.at('00:00').do(check_config)
 	while True:
-		# schedule.run_pending()
-		asd()
-		time.sleep(100)
+		schedule.run_pending()
+		time.sleep(1)
 
 
 if __name__ == '__main__':
