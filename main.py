@@ -129,6 +129,7 @@ def check_config():
 def main():
 	# catch_new_chat()
 	schedule.every().day.at('00:00').do(check_config)
+	schedule.run_all()
 	while True:
 		schedule.run_pending()
 		time.sleep(1)
