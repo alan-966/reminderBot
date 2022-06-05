@@ -116,20 +116,21 @@ def check_weather_config(client, **kwargs):
 
 
 def check_config():
+	schedule.clear('action')
 	for client in clients_list:
 		for action in clients_list[client]:
 			params = clients_list[client][action]
 			t = params['time'] if 'time' in params else '00:00'
 			if action == 'weather':
-				schedule.every().day.at(t).do(check_weather_config, client, **params)
+				schedule.every().day.at(t).do(check_weather_config, client, **params).tag('action')
 			elif action == 'birthday':
-				schedule.every().day.at(t).do(check_birthday_config, client, **params)
+				schedule.every().day.at(t).do(check_birthday_config, client, **params).tag('action')
 
 
 def main():
 	# catch_new_chat()
+	check_config()
 	schedule.every().day.at('00:00').do(check_config)
-	schedule.run_all()
 	while True:
 		schedule.run_pending()
 		time.sleep(1)
